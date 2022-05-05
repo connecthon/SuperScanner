@@ -5,6 +5,7 @@ from scipy.io import loadmat
 from sklearn.decomposition import PCA
 import numpy as np
 import matplotlib.pyplot as plt
+import os
 
 class voxelnet(nn.Module):
     def __init__(self, in_dim, hid_dim, out_dim):
@@ -55,17 +56,21 @@ def load_data_voxels(path, X_col_idx, y_col_idx, num_y_cols = 1, train_test_spli
     for i in range(data.shape[0]):
         mask[i] = ~(data[i].sum() == 1)
         
-    data=data[mask]   
+    new_data = data[mask]
 
-    if isinstance(pca_var, float):
-        data = PCA_reduction(data, pca_var)
+    if isinstance(pca_var, float) :
+        red_data = PCA_reduction(new_data[:,:X_col_idx], pca_var)
+        X = torch.tensor(red_data).to(device).float()
+        y = torch.tensor(new_data[:,y_col_idx:y_col_idx+num_y_cols]).to(device).float()
+    else :
+        red_data=new_data
+        X = torch.tensor(new_data[:,X_col_idx]).to(device).float()
+        y = torch.tensor(new_data[:,y_col_idx:y_col_idx+num_y_cols]).to(device).float()
 
-    train_length = int(train_test_split*data.shape[0])
-    test_length  = int((data.shape[0] - train_length)/2)
-    valid_length = data.shape[0] - train_length - test_length
+    train_length = int(train_test_split*red_data.shape[0])
+    test_length  = int((red_data.shape[0] - train_length)/2)
+    valid_length = red_data.shape[0] - train_length - test_length
 
-    X = torch.tensor(data[:,X_col_idx]).to(device).float()
-    y = torch.tensor(data[:,y_col_idx:y_col_idx+num_y_cols]).to(device).float()
     tensor_data = TensorDataset(X,y)
 
     train_data, test_data, valid_data = tuple(random_split(tensor_data, [train_length, test_length, valid_length]))
@@ -78,16 +83,10 @@ def PCA_reduction(data, exp_var=0.8):
     pca = PCA()
     pca.fit(data)
     variance = np.cumsum(pca.explained_variance_ratio_)
-    print(np.where(variance >= exp_var))
-    n_components = min(np.where(variance >= exp_var)[0])
-    print(n_components)
-    
+    n_components = min(np.where(variance >= exp_var)[0]) + 1
     pca_reduce = PCA(n_components=n_components)
     reduced_data = pca_reduce.fit_transform(data)
     return reduced_data
-    
-    
-    
     
 def train(model, train_dl, test_dl, optimizer, loss_function=torch.nn.MSELoss(), num_epochs=5):
     """
@@ -141,6 +140,7 @@ def evaluate_plot(trained_model, trained_model_path, valid_dl, save_fig=True, de
 
     valid_data = valid_dl.dataset
     trained_model.load_state_dict((torch.load(trained_model_path)))
+    model_name=os.path.basename(trained_model_path)
 
     trained_model.eval()
     inputs = valid_dl.dataset[:][0]
@@ -156,7 +156,7 @@ def evaluate_plot(trained_model, trained_model_path, valid_dl, save_fig=True, de
     ax.scatter(real_outputs.detach().cpu().numpy(), outputs.detach().cpu().numpy(), s=1, alpha=0.3, color='k')
     
     if save_fig:
-        plt.savefig('./data/performance.jpg')
+        plt.savefig('./data/performance_' + model_name + '.jpg')
     plt.show()
     
     return outputs.detach().cpu().numpy()
