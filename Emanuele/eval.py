@@ -2,10 +2,13 @@ import net
 from scipy.io import savemat
 import numpy as np
 
-_, _, valid_data = net.load_data_voxels('./data/sub-06400_ndwi.mat', 139, 140, num_y_cols=1, batch_size=50,  device='cpu')
+X=[0,34,55,27,137]
+Y=265
 
-trained_model = net.voxelnet(139,100,1).to('cpu')
-prediction = net.evaluate_plot(trained_model, './models/voxelnet', valid_data)
+_, _, valid_data = net.load_data_voxels('./data/sub-06400_ndwi.mat', X, Y, num_y_cols=1, batch_size=50,  device='cpu')
 
-savemat('./data/prediction.mat', {'predictions':predictions})
-np.savetxt('./data/prediction.csv', predictions, delimiter=',')
+trained_model = net.voxelnet(len(X),100,1).to('cpu')
+predictions = net.evaluate_plot(trained_model, './models/voxelnet_' + str(Y), valid_data)
+
+savemat('./data/prediction' + str(Y) +'.mat', {'predictions':predictions})
+np.savetxt('./data/prediction' + str(Y) + '.csv', predictions, delimiter=',')

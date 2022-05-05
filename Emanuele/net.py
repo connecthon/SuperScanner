@@ -62,7 +62,7 @@ def load_data_voxels(path, X_col_idx, y_col_idx, num_y_cols = 1, train_test_spli
     test_length  = int((data.shape[0] - train_length)/2)
     valid_length = data.shape[0] - train_length - test_length
 
-    X = torch.tensor(data[:,:X_col_idx]).to(device).float()
+    X = torch.tensor(data[:,X_col_idx]).to(device).float()
     y = torch.tensor(data[:,y_col_idx:y_col_idx+num_y_cols]).to(device).float()
     tensor_data = TensorDataset(X,y)
 
@@ -154,7 +154,7 @@ def evaluate_plot(trained_model, trained_model_path, valid_dl, save_fig=True, de
     ax.scatter(real_outputs.detach().cpu().numpy(), outputs.detach().cpu().numpy(), s=1, alpha=0.3, color='k')
     
     if save_fig:
-        plt.savefig('.data/performance.jpg')
+        plt.savefig('./data/performance.jpg')
     plt.show()
     
     return outputs.detach().cpu().numpy()
