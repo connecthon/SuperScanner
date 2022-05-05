@@ -15,7 +15,8 @@ Y=265
 train_dl, test_dl, _ = net.load_data_voxels('./data/sub-06400_ndwi.mat', X, Y, num_y_cols=1, batch_size=128,  pca_var=None, device=device)
 
 in_dim = train_dl.dataset[:][0].shape[1]
-model = net.voxelnet(in_dim, 100, 1).to(device)
+hidden_dim=10 # aprox 2/3 number of input dimensions + number output dims
+model = net.voxelnet(in_dim, hidden_dim, 1).to(device)
 opt = torch.optim.Adam(model.parameters(), lr=1e-4)
 
 trained_model = net.train(model, train_dl, test_dl, opt, num_epochs=5)

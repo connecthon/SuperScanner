@@ -54,6 +54,8 @@ def load_data_voxels(path, X_col_idx, y_col_idx, num_y_cols = 1, train_test_spli
     mask = np.ones(data.shape[0], dtype=bool)
     for i in range(data.shape[0]):
         mask[i] = ~(data[i].sum() == 1)
+        
+    data=data[mask]   
 
     if isinstance(pca_var, float):
         data = PCA_reduction(data, pca_var)
