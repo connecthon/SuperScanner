@@ -76,6 +76,7 @@ def PCA_reduction(data, exp_var=0.8):
     pca = PCA()
     pca.fit(data)
     variance = np.cumsum(pca.explained_variance_ratio_)
+    print(np.where(variance >= exp_var))
     n_components = min(np.where(variance >= exp_var)[0])
     print(n_components)
     
@@ -134,7 +135,7 @@ def train(model, train_dl, test_dl, optimizer, loss_function=torch.nn.MSELoss(),
     print('Training process has finished. Saving the model...')
     return model.state_dict()
     
-def evaluate_plot(trained_model, trained_model_path, valid_dl, device='cpu'):
+def evaluate_plot(trained_model, trained_model_path, valid_dl, save_fig=True, device='cpu'):
 
     valid_data = valid_dl.dataset
     trained_model.load_state_dict((torch.load(trained_model_path)))
@@ -152,8 +153,8 @@ def evaluate_plot(trained_model, trained_model_path, valid_dl, device='cpu'):
     ax.plot(np.arange(0,1,0.1), np.arange(0,1,0.1), "r--", alpha=0.5, label = "y=x")
     ax.scatter(real_outputs.detach().cpu().numpy(), outputs.detach().cpu().numpy(), s=1, alpha=0.3, color='k')
     
+    if save_fig:
+        plt.savefig('.data/performance.jpg')
     plt.show()
     
-    
-
-    
+    return outputs.detach().cpu().numpy()
