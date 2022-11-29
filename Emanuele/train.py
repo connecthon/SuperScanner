@@ -13,7 +13,7 @@ Y=139
 
 use_pca=False
 
-if use_pca == True :
+if use_pca:
     train_dl, test_dl, _ = net.load_data_voxels('./data/sub-06400_ndwi.mat', 139, Y, num_y_cols=1, batch_size=128,  pca_var=0.90, device=device)
     model_name='voxelnet_' + str(Y) +'_pca'
 else :
