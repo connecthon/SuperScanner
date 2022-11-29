@@ -40,7 +40,10 @@ def load_data_voxels(path, X_col_idx, y_col_idx, num_y_cols = 1, train_test_spli
     num_y_cols - int: number of columns of y data
     train_test_split - float: percentage of training data
     batch_size - int: number of samples per batch
-    devide - str: device where to load the data (e.g. cpu or cuda)
+    pca_var - float or None: percentage of explained variance for the PCA
+                             which will be applied to the data.
+                             Default: None. No PCA will be performed.
+    device - str: device where to load the data (e.g. cpu or cuda)
 
     Returns
     -------
