@@ -6,7 +6,7 @@ from numpy import genfromtxt
 use_pca=False
 Y=139
 
-if use_pca == True :
+if use_pca:
     _, _, valid_data = net.load_data_voxels('./data/sub-06400_ndwi.mat', 139, Y, num_y_cols=1, batch_size=50,  pca_var=0.9, device='cpu')
     in_dim = valid_data.dataset[:][0].shape[1]
     print(in_dim)
